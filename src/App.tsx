@@ -1,35 +1,33 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import './App.css';
+import { Page } from './components/layout/page';
+import DepartmentSection from './components/Department/DepartmentSection';
+import type { Department } from './types/types';
+
+const departments: Department[] = [
+    {
+        name: "Executive Management",
+        employees: [
+            { firstName: "Jane", lastName: "Doe" }, 
+            { firstName: "Michael", lastName: "Jordan" }
+        ]
+    },
+    {
+        name: "Finance",
+        employees: [
+            { firstName: "Alice", lastName: "Johnson" },
+            { firstName: "Bob", lastName: "Brown" }
+        ]
+    },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <Page>
+            {departments.map((dept, index) => (
+                <DepartmentSection key={index} dept={dept} />
+            ))}
+        </Page>
+    );
 }
 
-export default App
+export default App;
