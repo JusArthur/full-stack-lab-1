@@ -1,5 +1,5 @@
 import './App.css';
-import { Page } from './components/layout/page';
+import { Page } from './components/layout/Page';
 import DepartmentSection from './components/Department/DepartmentSection';
 import type { Department } from './types/types';
 
