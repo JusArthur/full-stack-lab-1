@@ -5,23 +5,7 @@ import { Page } from './components/layout/Page';
 import DepartmentSection from './components/Department/DepartmentSection';
 import AddEmployeeForm from './components/Employee/AddEmployeeForm';
 import type { Department, Employee } from './types/types';
-
-const initialDepartments: Department[] = [
-    {
-        name: "Executive Management",
-        employees: [
-            { firstName: "Jane", lastName: "Doe" }, 
-            { firstName: "Michael", lastName: "Jordan" }
-        ]
-    },
-    {
-        name: "Finance",
-        employees: [
-            { firstName: "Alice", lastName: "Johnson" },
-            { firstName: "Bob", lastName: "Brown" }
-        ]
-    },
-];
+import { initialDepartments } from './data/initialData';
 
 function App() {
     // 1. Initialize state with the initial data
