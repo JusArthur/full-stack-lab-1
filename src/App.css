@@ -53,3 +53,76 @@ footer {
   padding: 1rem;
   border-top: 1px solid #ccc;
 }
+
+.navbar {
+  background-color: #f0f0f0;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 2rem;
+}
+
+.navbar-list {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 20px;
+}
+
+.navbar-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.navbar-link:hover {
+  background-color: #e0e0e0;
+  color: #2980b9;
+}
+
+/* Organization Page Styles */
+.organization-title {
+  color: #2980b9;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.organization-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.organization-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.organization-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.role-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.role-title {
+  color: #7f8c8d;
+  font-style: italic;
+  font-size: 0.95rem;
+}
