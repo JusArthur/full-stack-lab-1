@@ -2,24 +2,16 @@ import { useState } from 'react';
 import { Page } from '../components/layout/Page';
 import DepartmentSection from '../components/Department/DepartmentSection';
 import AddEmployeeForm from '../components/Employee/AddEmployeeForm';
-import type { Department, Employee } from '../types/types';
-import { initialDepartments } from '../data/initialData';
+import type { Department } from '../types/types';
+import { employeeService } from '../services/EmployeeService';
 
 const EmployeesPage = () => {
-    const [departments, setDepartments] = useState<Department[]>(initialDepartments);
+    // Initialize state using the service/repo data
+    const [departments, setDepartments] = useState<Department[]>(employeeService.getDepartments());
 
-    const handleAddEmployee = (departmentName: string, newEmployee: Employee) => {
-        setDepartments(prevDepartments => {
-            return prevDepartments.map(dept => {
-                if (dept.name === departmentName) {
-                    return {
-                        ...dept,
-                        employees: [...dept.employees, newEmployee]
-                    };
-                }
-                return dept;
-            });
-        });
+    // Function to refresh data from the repository
+    const refreshDepartments = () => {
+        setDepartments(employeeService.getDepartments());
     };
 
     return (
@@ -28,9 +20,10 @@ const EmployeesPage = () => {
                 <DepartmentSection key={index} dept={dept} />
             ))}
             
+            {/* Pass the refresh function to the form */}
             <AddEmployeeForm 
                 departments={departments} 
-                onAdd={handleAddEmployee} 
+                onEmployeeAdded={refreshDepartments} 
             />
         </Page>
     );
