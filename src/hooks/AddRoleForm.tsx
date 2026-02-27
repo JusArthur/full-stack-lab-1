@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
-import { useFormInput } from '../../hooks/useFormInput';
-import { organizationService } from '../../services/OrganizationService';
+import { useFormInput } from './useFormInput';
+import { organizationService } from '../services/OrganizationService';
 
 interface Props {
   onRoleAdded: () => void;
