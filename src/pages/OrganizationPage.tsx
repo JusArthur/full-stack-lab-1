@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Page } from '../components/layout/Page';
-import AddRoleForm from '../hooks/AddRoleForm';
+import AddRoleForm from '../components/Organization/AddRoleForm';
 import { organizationService } from '../services/OrganizationService';
 import type { Role } from '../types/types';
 
