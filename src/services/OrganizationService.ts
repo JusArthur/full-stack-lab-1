@@ -3,6 +3,7 @@ import { organizationRepo } from '../repositories/OrganizationRepository';
 
 export const organizationService = {
   addRole: (role: Role): { success: boolean; message?: string } => {
+    // Add validation logic for role data
     if (role.firstName.trim().length < 3) {
       return { success: false, message: 'First Name must be at least 3 characters long.' };
     }
