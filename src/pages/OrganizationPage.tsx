@@ -1,28 +1,30 @@
+import { useState } from 'react';
 import { Page } from '../components/layout/Page';
-import { organizationData } from '../data/organizationData';
+import AddRoleForm from '../hooks/AddRoleForm';
+import { organizationService } from '../services/OrganizationService';
+import type { Role } from '../types/types';
 
 const OrganizationPage = () => {
+    const [roles, setRoles] = useState<Role[]>(organizationService.getRoles());
+
+    const refreshRoles = () => {
+        setRoles(organizationService.getRoles());
+    };
+
     return (
         <Page>
-            <h2 style={{ color: '#2980b9', marginBottom: '1rem' }}>Leadership & Management</h2>
-            <div className="organization-list" style={{ display: 'grid', gap: '10px' }}>
-                {organizationData.map((role, index) => (
-                    <div 
-                        key={index} 
-                        style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            padding: '15px', 
-                            border: '1px solid #eee',
-                            borderRadius: '4px',
-                            backgroundColor: index % 2 === 0 ? '#fafafa' : '#fff'
-                        }}
-                    >
-                        <span style={{ fontWeight: 'bold' }}>{role.firstName} {role.lastName}</span>
-                        <span style={{ color: '#555', fontStyle: 'italic' }}>{role.title}</span>
+            <h2 className="organization-title">Leadership & Management</h2>
+            
+            <div className="organization-grid">
+                {roles.map((role, index) => (
+                    <div className="organization-card" key={index}>
+                        <div className="role-name">{role.firstName} {role.lastName}</div>
+                        <div className="role-title">{role.title}</div>
                     </div>
                 ))}
             </div>
+
+            <AddRoleForm onRoleAdded={refreshRoles} />
         </Page>
     );
 };
