@@ -5,7 +5,6 @@ interface Props {
 }
 
 const AddRoleForm = ({ onRoleAdded }: Props) => {
-  // The component delegates all form logic, state, and submission handling to the hook
   const { firstName, lastName, title, formError, handleSubmit } = useAddRoleForm(onRoleAdded);
 
   return (
