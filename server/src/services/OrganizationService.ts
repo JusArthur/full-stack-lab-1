@@ -1,0 +1,23 @@
+import type { Role } from '../types/types.js';
+import { organizationRepo } from '../repositories/OrganizationRepository.js';
+
+export const organizationService = {
+  getRoles: () => {
+    return organizationRepo.getRoles();
+  },
+
+  addRole: (role: Role): { success: boolean; message?: string } => {
+    if (role.firstName.trim().length < 3) {
+      return { success: false, message: 'First Name must be at least 3 characters long.' };
+    }
+    if (!role.title.trim()) {
+      return { success: false, message: 'Role title is required.' };
+    }
+    if (organizationRepo.roleExists(role.title)) {
+      return { success: false, message: 'This role is already occupied.' };
+    }
+
+    organizationRepo.addRole(role);
+    return { success: true };
+  }
+};

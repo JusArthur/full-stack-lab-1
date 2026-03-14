@@ -14,7 +14,7 @@ const AddEmployeeForm = ({ departments, onEmployeeAdded }: Props) => {
   // Default to first department if available, else empty string
   const departmentInput = useFormInput(departments[0]?.name || '');
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     const employeeData = {
@@ -22,17 +22,14 @@ const AddEmployeeForm = ({ departments, onEmployeeAdded }: Props) => {
       lastName: lastNameInput.value,
     };
 
-    // Attempt to create employee via service
-    const result = employeeService.addEmployee(departmentInput.value, employeeData);
+    // AWAIT the response from the backend
+    const result = await employeeService.addEmployee(departmentInput.value, employeeData);
 
     if (result.success) {
-      // Refresh the list in the parent
       onEmployeeAdded();
-      // Reset form
       firstNameInput.reset();
       lastNameInput.reset();
     } else {
-      // If failed, indicate what went wrong to the hook
       if (result.message?.includes('Department')) {
         departmentInput.setMessage(result.message);
       } else {
@@ -40,7 +37,6 @@ const AddEmployeeForm = ({ departments, onEmployeeAdded }: Props) => {
       }
     }
   };
-
   return (
     <form className="add-employee-form" onSubmit={handleSubmit} style={{ marginTop: '2rem', padding: '1rem', border: '1px solid #ddd' }}>
       <h3>Add New Employee</h3>

@@ -8,13 +8,14 @@ export const useAddRoleForm = (onSuccess: () => void) => {
   const title = useFormInput('');
   const [formError, setFormError] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setFormError(null);
     firstName.setMessage('');
     title.setMessage('');
 
-    const result = organizationService.addRole({
+    // AWAIT the response from the backend
+    const result = await organizationService.addRole({
       firstName: firstName.value,
       lastName: lastName.value,
       title: title.value,
@@ -28,7 +29,6 @@ export const useAddRoleForm = (onSuccess: () => void) => {
     } else {
       setFormError(result.message || 'An error occurred during submission.');
       
-      // Target specific input fields based on the service's error message
       if (result.message?.toLowerCase().includes('first name')) {
         firstName.setMessage(result.message);
       } else if (result.message?.toLowerCase().includes('role')) {
