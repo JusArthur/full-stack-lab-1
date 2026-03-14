@@ -1,20 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Page } from '../components/layout/Page';
 import AddRoleForm from '../components/Organization/AddRoleForm';
 import { organizationService } from '../services/OrganizationService';
 import type { Role } from '../types/types';
 
 const OrganizationPage = () => {
-    const [roles, setRoles] = useState<Role[]>(organizationService.getRoles());
+    const [roles, setRoles] = useState<Role[]>([]);
 
-    const refreshRoles = () => {
-        setRoles(organizationService.getRoles());
+    useEffect(() => {
+        refreshRoles();
+    }, []);
+
+    const refreshRoles = async () => {
+        const data = await organizationService.getRoles();
+        setRoles(data);
     };
 
     return (
         <Page>
             <h2 className="organization-title">Leadership & Management</h2>
-            
             <div className="organization-grid">
                 {roles.map((role, index) => (
                     <div className="organization-card" key={index}>
@@ -23,7 +27,6 @@ const OrganizationPage = () => {
                     </div>
                 ))}
             </div>
-
             <AddRoleForm onRoleAdded={refreshRoles} />
         </Page>
     );

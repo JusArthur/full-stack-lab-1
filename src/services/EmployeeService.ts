@@ -1,24 +1,23 @@
-import type { Employee } from '../types/types';
-import { employeeRepo } from '../repositories/EmployeeRepository';
+import type { Employee, Department } from '../types/types';
+
+const API_URL = 'http://localhost:3000/api/employees';
 
 export const employeeService = {
-  addEmployee: (departmentName: string, employee: Employee): { success: boolean; message?: string } => {
-    // Validate Department Exists
-    if (!employeeRepo.departmentExists(departmentName)) {
-      return { success: false, message: 'Invalid department selected.' };
-    }
-
-    // Validate First Name Length
-    if (employee.firstName.trim().length < 3) {
-      return { success: false, message: 'First Name must be at least 3 characters long.' };
-    }
-
-    // If validations pass, call repository
-    employeeRepo.addEmployee(departmentName, employee);
-    return { success: true };
+  getDepartments: async (): Promise<Department[]> => {
+    const response = await fetch(`${API_URL}/departments`);
+    return response.json();
   },
-  
-  getDepartments: () => {
-    return employeeRepo.getDepartments();
+
+  addEmployee: async (departmentName: string, employee: Employee): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ departmentName, employee })
+      });
+      return await response.json();
+    } catch (error) {
+      return { success: false, message: 'Failed to connect to the server.' };
+    }
   }
 };

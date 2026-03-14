@@ -1,5 +1,5 @@
 import type { Department, Employee } from '../types/types.js';
-import { initialDepartments } from '../data/initialData.js';
+import { initialDepartments } from '../data/initialData';
 
 class EmployeeRepository {
   private departments: Department[] = [...initialDepartments];
