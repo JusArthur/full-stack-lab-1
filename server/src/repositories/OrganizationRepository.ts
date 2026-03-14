@@ -1,5 +1,5 @@
 import type { Role } from '../types/types.js';
-import { organizationData } from '../data/organizationData';
+import { organizationData } from '../data/organizationData.js';
 
 class OrganizationRepository {
   private roles: Role[] = [...organizationData];
