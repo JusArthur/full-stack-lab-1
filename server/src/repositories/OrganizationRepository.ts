@@ -1,19 +1,32 @@
-import type { Role } from '../types/types.js';
-import { organizationData } from '../data/organizationData';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 class OrganizationRepository {
-  private roles: Role[] = [...organizationData];
-
-  getRoles(): Role[] {
-    return this.roles;
+  async getRoles() {
+    return await prisma.role.findMany({
+      include: { employees: true },
+    });
   }
 
-  roleExists(title: string): boolean {
-    return this.roles.some((r) => r.title.trim().toLowerCase() === title.trim().toLowerCase());
+  async roleExists(title: string): Promise<boolean> {
+    const role = await prisma.role.findFirst({
+      where: {
+        title: {
+          equals: title,
+          mode: 'insensitive',
+        },
+      },
+    });
+    return role !== null;
   }
 
-  addRole(role: Role): void {
-    this.roles.push(role);
+  async addRole(role: { title: string }): Promise<void> {
+    await prisma.role.create({
+      data: {
+        title: role.title,
+      },
+    });
   }
 }
 

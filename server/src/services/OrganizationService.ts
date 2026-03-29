@@ -2,22 +2,21 @@ import type { Role } from '../types/types.js';
 import { organizationRepo } from '../repositories/OrganizationRepository.js';
 
 export const organizationService = {
-  getRoles: () => {
-    return organizationRepo.getRoles();
+  getRoles: async () => {
+    // Await the database call from the Prisma repository
+    return await organizationRepo.getRoles();
   },
 
-  addRole: (role: Role): { success: boolean; message?: string } => {
-    if (role.firstName.trim().length < 3) {
-      return { success: false, message: 'First Name must be at least 3 characters long.' };
-    }
-    if (!role.title.trim()) {
-      return { success: false, message: 'Role title is required.' };
-    }
-    if (organizationRepo.roleExists(role.title)) {
-      return { success: false, message: 'This role is already occupied.' };
+  addRole: async (role: Role): Promise<{ success: boolean; message?: string }> => {
+    // Await the check to see if the role already exists in the database
+    const exists = await organizationRepo.roleExists(role.title);
+    
+    if (exists) {
+      return { success: false, message: 'Role title already exists.' };
     }
 
-    organizationRepo.addRole(role);
+    // Await the creation of the new role in the database
+    await organizationRepo.addRole(role);
     return { success: true };
   }
 };

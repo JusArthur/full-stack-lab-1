@@ -1,21 +1,41 @@
-import type { Department, Employee } from '../types/types.js';
-import { initialDepartments } from '../data/initialData';
+import { PrismaClient } from '@prisma/client';
+import type { Employee } from '../types/types.js';
+
+// Initialize the Prisma Client
+const prisma = new PrismaClient();
 
 class EmployeeRepository {
-  private departments: Department[] = [...initialDepartments];
-
-  getDepartments(): Department[] {
-    return this.departments;
+  // Fetch departments directly from the database
+  async getDepartments() {
+    return await prisma.department.findMany({
+      include: { employees: true },
+    });
   }
 
-  departmentExists(name: string): boolean {
-    return this.departments.some((d) => d.name === name);
+  // Check if department exists in the DB
+  async departmentExists(name: string): Promise<boolean> {
+    const count = await prisma.department.count({
+      where: { name },
+    });
+    return count > 0;
   }
 
-  addEmployee(departmentName: string, employee: Employee): void {
-    const dept = this.departments.find(d => d.name === departmentName);
+  // Add the employee to the database linked to the department
+  async addEmployee(departmentName: string, employee: Employee): Promise<void> {
+    // First, find the department to get its internal database ID
+    const dept = await prisma.department.findUnique({
+      where: { name: departmentName },
+    });
+    
     if (dept) {
-      dept.employees.push(employee);
+      // Create a new employee record and set the foreign key
+      await prisma.employee.create({
+        data: {
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          departmentId: dept.id,
+        },
+      });
     }
   }
 }
