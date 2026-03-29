@@ -1,20 +1,22 @@
-import type { Employee } from '../types/types.js';
-import { employeeRepo } from '../repositories/EmployeeRepository.js';
+import type { Employee, Department } from '../types/types';
+
+const API_URL = '/api/employees';
 
 export const employeeService = {
-  getDepartments: () => {
-    return employeeRepo.getDepartments();
+  getDepartments: async (): Promise<Department[]> => {
+    const response = await fetch(`${API_URL}/departments`);
+    if (!response.ok) throw new Error('Failed to fetch departments from database');
+    return await response.json();
   },
-  
-  addEmployee: (departmentName: string, employee: Employee): { success: boolean; message?: string } => {
-    if (!employeeRepo.departmentExists(departmentName)) {
-      return { success: false, message: 'Invalid department selected.' };
-    }
-    if (employee.firstName.trim().length < 3) {
-      return { success: false, message: 'First Name must be at least 3 characters long.' };
-    }
+
+  addEmployee: async (departmentName: string, employee: Employee): Promise<{ success: boolean; message?: string }> => {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ departmentName, employee })
+    });
     
-    employeeRepo.addEmployee(departmentName, employee);
-    return { success: true };
+    if (!response.ok) throw new Error('Failed to add employee to database');
+    return await response.json();
   }
 };

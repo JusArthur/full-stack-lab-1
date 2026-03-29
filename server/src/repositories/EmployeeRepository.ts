@@ -1,21 +1,37 @@
-import type { Department, Employee } from '../types/types.js';
-import { initialDepartments } from '../data/initialData';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 class EmployeeRepository {
-  private departments: Department[] = [...initialDepartments];
-
-  getDepartments(): Department[] {
-    return this.departments;
+  async getDepartments() {
+    // Fetch departments and include their related employees
+    return await prisma.department.findMany({
+      include: { employees: true },
+    });
   }
 
-  departmentExists(name: string): boolean {
-    return this.departments.some((d) => d.name === name);
+  async departmentExists(name: string): Promise<boolean> {
+    const count = await prisma.department.count({
+      where: { name },
+    });
+    return count > 0;
   }
 
-  addEmployee(departmentName: string, employee: Employee): void {
-    const dept = this.departments.find(d => d.name === departmentName);
+  async addEmployee(departmentName: string, employee: { firstName: string; lastName?: string }) {
+    // Find the department to get its ID
+    const dept = await prisma.department.findUnique({
+      where: { name: departmentName },
+    });
+    
     if (dept) {
-      dept.employees.push(employee);
+      // Create the employee linked to the department
+      await prisma.employee.create({
+        data: {
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          departmentId: dept.id,
+        },
+      });
     }
   }
 }

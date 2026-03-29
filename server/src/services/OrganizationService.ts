@@ -1,23 +1,22 @@
-import type { Role } from '../types/types.js';
-import { organizationRepo } from '../repositories/OrganizationRepository.js';
+import type { Role } from '../types/types';
+
+const API_URL = '/api/organization';
 
 export const organizationService = {
-  getRoles: () => {
-    return organizationRepo.getRoles();
+  getRoles: async (): Promise<Role[]> => {
+    const response = await fetch(`${API_URL}/roles`);
+    if (!response.ok) throw new Error('Failed to fetch roles from database');
+    return await response.json();
   },
 
-  addRole: (role: Role): { success: boolean; message?: string } => {
-    if (role.firstName.trim().length < 3) {
-      return { success: false, message: 'First Name must be at least 3 characters long.' };
-    }
-    if (!role.title.trim()) {
-      return { success: false, message: 'Role title is required.' };
-    }
-    if (organizationRepo.roleExists(role.title)) {
-      return { success: false, message: 'This role is already occupied.' };
-    }
-
-    organizationRepo.addRole(role);
-    return { success: true };
+  addRole: async (role: Role): Promise<{ success: boolean; message?: string }> => {
+    const response = await fetch(`${API_URL}/roles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(role)
+    });
+    
+    if (!response.ok) throw new Error('Failed to add role to database');
+    return await response.json();
   }
 };
