@@ -1,15 +1,18 @@
 import { PrismaClient } from '@prisma/client';
+import type { Employee } from '../types/types.js';
 
+// Initialize the Prisma Client
 const prisma = new PrismaClient();
 
 class EmployeeRepository {
+  // Fetch departments directly from the database
   async getDepartments() {
-    // Fetch departments and include their related employees
     return await prisma.department.findMany({
       include: { employees: true },
     });
   }
 
+  // Check if department exists in the DB
   async departmentExists(name: string): Promise<boolean> {
     const count = await prisma.department.count({
       where: { name },
@@ -17,14 +20,15 @@ class EmployeeRepository {
     return count > 0;
   }
 
-  async addEmployee(departmentName: string, employee: { firstName: string; lastName?: string }) {
-    // Find the department to get its ID
+  // Add the employee to the database linked to the department
+  async addEmployee(departmentName: string, employee: Employee): Promise<void> {
+    // First, find the department to get its internal database ID
     const dept = await prisma.department.findUnique({
       where: { name: departmentName },
     });
     
     if (dept) {
-      // Create the employee linked to the department
+      // Create a new employee record and set the foreign key
       await prisma.employee.create({
         data: {
           firstName: employee.firstName,
