@@ -9,10 +9,14 @@ export const employeeService = {
     return await response.json();
   },
 
-  addEmployee: async (departmentName: string, employee: Employee): Promise<{ success: boolean; message?: string }> => {
+  // Update signature to require a token
+  addEmployee: async (departmentName: string, employee: Employee, token: string): Promise<{ success: boolean; message?: string }> => {
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // Send token to backend
+      },
       body: JSON.stringify({ departmentName, employee })
     });
     
