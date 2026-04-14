@@ -9,10 +9,14 @@ export const organizationService = {
     return await response.json();
   },
 
-  addRole: async (role: Role): Promise<{ success: boolean; message?: string }> => {
+  // Update this to accept the token
+  addRole: async (role: Role, token: string): Promise<{ success: boolean; message?: string }> => {
     const response = await fetch(`${API_URL}/roles`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
       body: JSON.stringify(role)
     });
     

@@ -28,7 +28,7 @@ export const useFormInput = (initialValue: string = '') => {
     value,
     onChange: handleChange,
     message,
-    setMessage, // Exposed to allow services to set external errors
+    setMessage, 
     validate,
     reset,
   };
