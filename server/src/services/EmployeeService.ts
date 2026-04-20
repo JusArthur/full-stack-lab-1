@@ -1,25 +1,58 @@
-import type { Employee } from '../types/types.js';
-import { employeeRepo } from '../repositories/EmployeeRepository.js';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export const employeeService = {
-  getDepartments: async () => {
-    // Await the database call from the repo
-    return await employeeRepo.getDepartments();
+  getDepartments: async (page: number = 1, limit: number = 5) => {
+    const skip = (page - 1) * limit;
+
+    // Run count and fetch concurrently for better performance
+    const [departments, totalCount] = await Promise.all([
+      prisma.department.findMany({
+        skip: skip,
+        take: limit,
+        include: {
+          employees: {
+            include: { role: true }
+          }
+        },
+        orderBy: { id: 'asc' } 
+      }),
+      prisma.department.count()
+    ]);
+
+    return {
+      data: departments,
+      meta: {
+        totalItems: totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        itemsPerPage: limit
+      }
+    };
   },
-  
-  addEmployee: async (departmentName: string, employee: Employee): Promise<{ success: boolean; message?: string }> => {
-    // Await the boolean check from the database
-    const exists = await employeeRepo.departmentExists(departmentName);
-    
-    if (!exists) {
-      return { success: false, message: 'Invalid department selected.' };
+
+  addEmployee: async (departmentName: string, employeeData: any) => {
+    try {
+      const department = await prisma.department.findUnique({
+        where: { name: departmentName }
+      });
+
+      if (!department) {
+        return { success: false, message: 'Department not found' };
+      }
+
+      await prisma.employee.create({
+        data: {
+          firstName: employeeData.firstName,
+          lastName: employeeData.lastName,
+          departmentId: department.id,
+        }
+      });
+
+      return { success: true, message: 'Employee added successfully' };
+    } catch (error) {
+      return { success: false, message: 'Database error while adding employee' };
     }
-    if (employee.firstName.trim().length < 3) {
-      return { success: false, message: 'First Name must be at least 3 characters long.' };
-    }
-    
-    // Await the creation process
-    await employeeRepo.addEmployee(departmentName, employee);
-    return { success: true };
   }
 };
