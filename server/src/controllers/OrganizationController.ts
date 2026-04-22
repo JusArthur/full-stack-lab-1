@@ -4,10 +4,13 @@ import { organizationService } from '../services/OrganizationService.js';
 export const organizationController = {
   getRoles: async (req: Request, res: Response) => {
     try {
-      // Await the database call
-      const rolesData = await organizationService.getRoles();
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      const paginatedData = await organizationService.getRoles(page, limit);
       
-      const flattenedRoles = rolesData.flatMap((role: any) => 
+      // Flatten the employees out of the paginated roles
+      const flattenedRoles = paginatedData.data.flatMap((role: any) => 
         role.employees.map((emp: any) => ({
           firstName: emp.firstName,
           lastName: emp.lastName,
@@ -15,7 +18,11 @@ export const organizationController = {
         }))
       );
 
-      res.json(flattenedRoles);
+      // Return both the flattened data array and the pagination metadata
+      res.json({
+        data: flattenedRoles,
+        meta: paginatedData.meta
+      });
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch roles' });
     }

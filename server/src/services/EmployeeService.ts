@@ -1,25 +1,33 @@
-import type { Employee } from '../types/types.js';
 import { employeeRepo } from '../repositories/EmployeeRepository.js';
 
 export const employeeService = {
-  getDepartments: async () => {
-    // Await the database call from the repo
-    return await employeeRepo.getDepartments();
+  getDepartments: async (page: number = 1, limit: number = 5) => {
+    // Delegate the DB call to the repository
+    const { departments, totalCount } = await employeeRepo.getDepartments(page, limit);
+
+    return {
+      data: departments,
+      meta: {
+        totalItems: totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        itemsPerPage: limit
+      }
+    };
   },
-  
-  addEmployee: async (departmentName: string, employee: Employee): Promise<{ success: boolean; message?: string }> => {
-    // Await the boolean check from the database
-    const exists = await employeeRepo.departmentExists(departmentName);
-    
-    if (!exists) {
-      return { success: false, message: 'Invalid department selected.' };
+
+  addEmployee: async (departmentName: string, employeeData: any) => {
+    try {
+      // Delegate to repository
+      const success = await employeeRepo.addEmployee(departmentName, employeeData);
+
+      if (!success) {
+        return { success: false, message: 'Department not found' };
+      }
+
+      return { success: true, message: 'Employee added successfully' };
+    } catch (error) {
+      return { success: false, message: 'Database error while adding employee' };
     }
-    if (employee.firstName.trim().length < 3) {
-      return { success: false, message: 'First Name must be at least 3 characters long.' };
-    }
-    
-    // Await the creation process
-    await employeeRepo.addEmployee(departmentName, employee);
-    return { success: true };
   }
 };

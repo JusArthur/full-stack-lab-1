@@ -2,20 +2,29 @@ import type { Employee, Department } from '../types/types';
 
 const API_URL = '/api/employees';
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    itemsPerPage: number;
+  }
+}
+
 export const employeeService = {
-  getDepartments: async (): Promise<Department[]> => {
-    const response = await fetch(`${API_URL}/departments`);
+  getDepartments: async (page: number = 1, limit: number = 5): Promise<PaginatedResponse<Department>> => {
+    const response = await fetch(`${API_URL}/departments?page=${page}&limit=${limit}`);
     if (!response.ok) throw new Error('Failed to fetch departments from database');
     return await response.json();
   },
 
-  // Update signature to require a token
-  addEmployee: async (departmentName: string, employee: Employee, token: string): Promise<{ success: boolean; message?: string }> => {
+  addEmployee: async (departmentName: string, employee: Employee, token: string | null): Promise<{ success: boolean; message?: string }> => {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Send token to backend
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       },
       body: JSON.stringify({ departmentName, employee })
     });

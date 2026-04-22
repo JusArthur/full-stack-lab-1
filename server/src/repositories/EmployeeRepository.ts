@@ -1,42 +1,48 @@
 import { PrismaClient } from '@prisma/client';
 import type { Employee } from '../types/types.js';
 
-// Initialize the Prisma Client
 const prisma = new PrismaClient();
 
 class EmployeeRepository {
-  // Fetch departments directly from the database
-  async getDepartments() {
-    return await prisma.department.findMany({
-      include: { employees: true },
-    });
+  // Move the paginated fetch logic here
+  async getDepartments(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [departments, totalCount] = await Promise.all([
+      prisma.department.findMany({
+        skip: skip,
+        take: limit,
+        include: {
+          employees: {
+            include: { role: true }
+          }
+        },
+        orderBy: { id: 'asc' } 
+      }),
+      prisma.department.count()
+    ]);
+
+    return { departments, totalCount };
   }
 
-  // Check if department exists in the DB
   async departmentExists(name: string): Promise<boolean> {
-    const count = await prisma.department.count({
-      where: { name },
-    });
+    const count = await prisma.department.count({ where: { name } });
     return count > 0;
   }
 
-  // Add the employee to the database linked to the department
-  async addEmployee(departmentName: string, employee: Employee): Promise<void> {
-    // First, find the department to get its internal database ID
-    const dept = await prisma.department.findUnique({
-      where: { name: departmentName },
-    });
+  async addEmployee(departmentName: string, employee: Employee): Promise<boolean> {
+    const dept = await prisma.department.findUnique({ where: { name: departmentName } });
     
-    if (dept) {
-      // Create a new employee record and set the foreign key
-      await prisma.employee.create({
-        data: {
-          firstName: employee.firstName,
-          lastName: employee.lastName,
-          departmentId: dept.id,
-        },
-      });
-    }
+    if (!dept) return false;
+
+    await prisma.employee.create({
+      data: {
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        departmentId: dept.id,
+      },
+    });
+    return true;
   }
 }
 

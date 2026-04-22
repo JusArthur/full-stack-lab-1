@@ -2,17 +2,19 @@ import type { Request, Response } from 'express';
 import { employeeService } from '../services/EmployeeService.js';
 
 export const employeeController = {
-  // Add async and await here
   getDepartments: async (req: Request, res: Response) => {
     try {
-      const departments = await employeeService.getDepartments();
-      res.json(departments);
+      // Extract pagination params, set defaults if not provided
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      const paginatedData = await employeeService.getDepartments(page, limit);
+      res.json(paginatedData);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch departments' });
     }
   },
   
-  // Add async and await here
   addEmployee: async (req: Request, res: Response) => {
     try {
       const { departmentName, employee } = req.body;
