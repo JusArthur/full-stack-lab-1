@@ -1,21 +1,43 @@
-import { useState, useEffect } from 'react';
-import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'; // <-- Import Clerk here
+import { useState } from 'react';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Page } from '../components/layout/Page';
 import AddRoleForm from '../components/Organization/AddRoleForm';
 import { organizationService } from '../services/OrganizationService';
-import type { Role } from '../types/types';
 
 const OrganizationPage = () => {
-    const [roles, setRoles] = useState<Role[]>([]);
+    const queryClient = useQueryClient();
+    const [page, setPage] = useState(1);
+    const limit = 3; // Number of roles (not employees) per page
 
-    useEffect(() => {
-        refreshRoles();
-    }, []);
+    const { data: paginatedData, isLoading, isError } = useQuery({
+        queryKey: ['roles', page],
+        queryFn: () => organizationService.getRoles(page, limit),
+        staleTime: 10000,
+    });
 
-    const refreshRoles = async () => {
-        const data = await organizationService.getRoles();
-        setRoles(data);
+    const handleRoleAdded = () => {
+        queryClient.invalidateQueries({ queryKey: ['roles'] });
     };
+
+    if (isLoading) {
+        return (
+            <Page>
+                <div style={{ textAlign: "center", padding: "40px" }}>Loading leadership data...</div>
+            </Page>
+        );
+    }
+
+    if (isError) {
+        return (
+            <Page>
+                <div style={{ textAlign: "center", padding: "40px", color: "red" }}>Error loading records.</div>
+            </Page>
+        );
+    }
+
+    const roles = paginatedData?.data || [];
+    const meta = paginatedData?.meta;
 
     return (
         <Page>
@@ -28,13 +50,36 @@ const OrganizationPage = () => {
                     </div>
                 ))}
             </div>
+
+            {/* Pagination Controls */}
+            {meta && meta.totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', margin: '30px 0' }}>
+                    <button 
+                        disabled={page === 1} 
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        style={{ padding: "8px 16px", cursor: page === 1 ? "not-allowed" : "pointer" }}
+                    >
+                        Previous
+                    </button>
+                    
+                    <span style={{ fontWeight: "bold" }}>
+                        Page {meta.currentPage} of {meta.totalPages}
+                    </span>
+                    
+                    <button 
+                        disabled={page === meta.totalPages} 
+                        onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+                        style={{ padding: "8px 16px", cursor: page === meta.totalPages ? "not-allowed" : "pointer" }}
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
             
-            {/* 1. Only show the form if signed in */}
             <SignedIn>
-                <AddRoleForm onRoleAdded={refreshRoles} />
+                <AddRoleForm onRoleAdded={handleRoleAdded} />
             </SignedIn>
 
-            {/* 2. Show the nice custom login box if signed out */}
             <SignedOut>
                 <div style={{ 
                     border: '1px dashed #ccc', 

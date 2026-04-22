@@ -3,10 +3,20 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 class OrganizationRepository {
-  async getRoles() {
-    return await prisma.role.findMany({
-      include: { employees: true },
-    });
+  async getRoles(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [roles, totalCount] = await Promise.all([
+      prisma.role.findMany({
+        skip,
+        take: limit,
+        include: { employees: true },
+        orderBy: { title: 'asc' } 
+      }),
+      prisma.role.count()
+    ]);
+
+    return { roles, totalCount };
   }
 
   async roleExists(title: string): Promise<boolean> {
